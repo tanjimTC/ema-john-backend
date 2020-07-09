@@ -9,20 +9,12 @@ const port = process.env.PORT || 4200;
 app.use(cors());
 app.use(bodyParser.json());
 
-app.get("/fruits", (req, res) => {
-  const fruit = {
-    product: "adar bepari",
-    price: 100,
-  };
-  res.send(fruit);
-});
-
 const uri = process.env.DB_PATH;
 
-let client = new MongoClient(uri, { useNewUrlParser: true });
+let client = new MongoClient(uri, { useNewUrlParser: true } );
 
 app.get("/products", (req, res) => {
-  client = new MongoClient(uri, { useNewUrlParser: true } , { useUnifiedTopology: true });
+  client = new MongoClient(uri, { useNewUrlParser: true } );
   client.connect((err) => {
     const collection = client.db("onlineStore").collection("products");
     collection
@@ -39,9 +31,27 @@ app.get("/products", (req, res) => {
   });
 });
 
+app.get("/orders", (req, res) => {
+  client = new MongoClient(uri, { useNewUrlParser: true } );
+  client.connect((err) => {
+    const collection = client.db("onlineStore").collection("orders");
+    collection
+      .find()
+      .toArray((err, documents) => {
+        if (err) {
+          console.log(err);
+          res.status(500).send({ message: err });
+        } else {
+          res.send(documents);
+        }
+      });
+    client.close();
+  });
+});
+
 app.get("/product/:key", (req, res) => {
   const key = req.params.key;
-  client = new MongoClient(uri, { useNewUrlParser: true });
+  client = new MongoClient(uri, { useNewUrlParser: true } );
   client.connect((err) => {
     const collection = client.db("onlineStore").collection("products");
     collection
@@ -61,7 +71,7 @@ app.get("/product/:key", (req, res) => {
 app.post("/getProductByKey", (req, res) => {
   const key = req.params.key;
   const productKeys = req.body;
-  client = new MongoClient(uri, { useNewUrlParser: true });
+  client = new MongoClient(uri, { useNewUrlParser: true } );
   client.connect((err) => {
     const collection = client.db("onlineStore").collection("products");
     collection
@@ -81,7 +91,7 @@ app.post("/getProductByKey", (req, res) => {
 ///post
 app.post("/addProduct", (req, res) => {
   const product = req.body;
-  client = new MongoClient(uri, { useNewUrlParser: true } ,{ useUnifiedTopology: true });
+  client = new MongoClient(uri, { useNewUrlParser: true } );
   client.connect((err) => {
     const collection = client.db("onlineStore").collection("products");
     collection.insert(product, (err, result) => {
@@ -99,7 +109,7 @@ app.post("/addProduct", (req, res) => {
 app.post("/placeOrder", (req, res) => {
   const orderDetail = req.body;
   orderDetail.orderTime = new Date();
-  client = new MongoClient(uri, { useNewUrlParser: true } ,{ useUnifiedTopology: true });
+  client = new MongoClient(uri, { useNewUrlParser: true });
   client.connect((err) => {
     const collection = client.db("onlineStore").collection("orders");
     collection.insertOne(orderDetail, (err, result) => {
